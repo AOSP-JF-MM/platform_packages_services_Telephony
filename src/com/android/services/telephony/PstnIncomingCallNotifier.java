@@ -40,6 +40,7 @@ import com.android.internal.telephony.PhoneProxy;
 import com.android.internal.telephony.TelephonyIntents;
 import com.android.internal.telephony.cdma.CDMAPhone;
 import com.android.internal.telephony.cdma.CdmaCallWaitingNotification;
+import com.android.internal.telephony.gsm.SuppServiceNotification;
 import com.android.phone.PhoneUtils;
 
 import com.google.common.base.Preconditions;
@@ -55,6 +56,7 @@ final class PstnIncomingCallNotifier {
     private static final int EVENT_NEW_RINGING_CONNECTION = 100;
     private static final int EVENT_CDMA_CALL_WAITING = 101;
     private static final int EVENT_UNKNOWN_CONNECTION = 102;
+    private static final int EVENT_SUPP_SERVICE_NOTIFY = 103;
 
     /** The phone proxy object to listen to. */
     private final PhoneProxy mPhoneProxy;
@@ -66,6 +68,8 @@ final class PstnIncomingCallNotifier {
      * unregister from the events we were listening to.
      */
     private Phone mPhoneBase;
+
+    private boolean mNextGsmCallIsForwarded = false;
 
     /**
      * Used to listen to events from {@link #mPhoneBase}.
@@ -82,6 +86,9 @@ final class PstnIncomingCallNotifier {
                     break;
                 case EVENT_UNKNOWN_CONNECTION:
                     handleNewUnknownConnection((AsyncResult) msg.obj);
+                    break;
+                case EVENT_SUPP_SERVICE_NOTIFY:
+                    handleSuppServiceNotification((AsyncResult) msg.obj);
                     break;
                 default:
                     break;
@@ -149,6 +156,8 @@ final class PstnIncomingCallNotifier {
                         mHandler, EVENT_NEW_RINGING_CONNECTION, null);
                 mPhoneBase.registerForCallWaiting(
                         mHandler, EVENT_CDMA_CALL_WAITING, null);
+                mPhoneBase.registerForSuppServiceNotification(
+                        mHandler, EVENT_SUPP_SERVICE_NOTIFY, null);
                 mPhoneBase.registerForUnknownConnection(mHandler, EVENT_UNKNOWN_CONNECTION,
                         null);
             }
@@ -161,6 +170,7 @@ final class PstnIncomingCallNotifier {
             mPhoneBase.unregisterForNewRingingConnection(mHandler);
             mPhoneBase.unregisterForCallWaiting(mHandler);
             mPhoneBase.unregisterForUnknownConnection(mHandler);
+            mPhoneBase.unregisterForSuppServiceNotification(mHandler);
         }
     }
 
@@ -221,6 +231,17 @@ final class PstnIncomingCallNotifier {
         }
     }
 
+    private void handleSuppServiceNotification(AsyncResult asyncResult) {
+        SuppServiceNotification ssn = (SuppServiceNotification) asyncResult.result;
+
+        if (ssn.notificationType == SuppServiceNotification.NOTIFICATION_TYPE_MT) {
+            if (ssn.code == SuppServiceNotification.MT_CODE_FORWARDED_CALL
+                    || ssn.code == SuppServiceNotification.MT_CODE_DEFLECTED_CALL) {
+                mNextGsmCallIsForwarded = true;
+            }
+        }
+    }
+
     private void addNewUnknownCall(Connection connection) {
         Log.i(this, "addNewUnknownCall, connection is: %s", connection);
 
@@ -259,6 +280,18 @@ final class PstnIncomingCallNotifier {
             Uri uri = Uri.fromParts(PhoneAccount.SCHEME_TEL, connection.getAddress(), null);
             extras.putParcelable(TelecomManager.EXTRA_INCOMING_CALL_ADDRESS, uri);
         }
+
+        if (mNextGsmCallIsForwarded) {
+            int phoneType = connection.getCall().getPhone().getPhoneType();
+            if (phoneType == TelephonyManager.PHONE_TYPE_GSM) {
+                if (extras == null) {
+                    extras = new Bundle();
+                }
+                extras.putBoolean(TelephonyManager.EXTRA_IS_FORWARDED, true);
+                mNextGsmCallIsForwarded = false;
+            }
+        }
+
         PhoneAccountHandle handle = findCorrectPhoneAccountHandle();
         if (handle == null) {
             try {

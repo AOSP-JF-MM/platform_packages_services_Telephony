@@ -215,10 +215,6 @@ abstract class TelephonyConnection extends Connection {
                     setConnectionCapability(msg.arg1);
                     break;
 
-                case MSG_SET_CONNECTION_CAPABILITY:
-                    setConnectionCapability(msg.arg1);
-                    break;
-
                 case MSG_CONNECTION_EXTRAS_CHANGED:
                     final Bundle extras = (Bundle) msg.obj;
                     updateExtras(extras);

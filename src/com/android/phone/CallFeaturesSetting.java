@@ -110,9 +110,10 @@ public class CallFeaturesSetting extends PreferenceActivity
     private SubscriptionInfoHelper mSubscriptionInfoHelper;
     private TelecomManager mTelecomManager;
 
-    private CheckBoxPreference mButtonAutoRetry;
+
+    private SwitchPreference mButtonAutoRetry;
     private PreferenceScreen mVoicemailSettingsScreen;
-    private CheckBoxPreference mEnableVideoCalling;
+    private SwitchPreference mEnableVideoCalling;
 
     /*
      * Click Listeners, handle click based on objects attached to UI.

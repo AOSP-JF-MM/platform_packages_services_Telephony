@@ -515,8 +515,9 @@ public class OutgoingCallBroadcaster extends Activity
                 // opposed to a Context which look up known android
                 // packages only)
                 final Resources resources = getResources();
-                invokeFrameworkDialer.setComponent(
-                        PhoneUtils.getDefaultDialerComponent(this));
+                invokeFrameworkDialer.setClassName(
+                        resources.getString(R.string.ui_default_package),
+                        resources.getString(R.string.dialer_default_class));
                 invokeFrameworkDialer.setAction(Intent.ACTION_DIAL);
                 invokeFrameworkDialer.setData(intent.getData());
                 if (DBG) Log.v(TAG, "onCreate(): calling startActivity for Dialer: "

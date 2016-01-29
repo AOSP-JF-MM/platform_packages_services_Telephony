@@ -25,10 +25,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
@@ -2545,22 +2542,5 @@ public class PhoneUtils {
         for (Phone phone : PhoneFactory.getPhones()) {
             phone.setRadioPower(enabled);
         }
-    }
-
-    public static ComponentName getDefaultDialerComponent(Context context) {
-        Resources resources = context.getResources();
-        PackageManager packageManager = context.getPackageManager();
-        Intent i = new Intent(Intent.ACTION_DIAL);
-        List<ResolveInfo> resolveInfo = packageManager.queryIntentActivities(i, 0);
-        List<String> entries = Arrays.asList(resources.getStringArray(
-                R.array.dialer_default_classes));
-        for (ResolveInfo info : resolveInfo) {
-            ComponentName componentName = new ComponentName(info.activityInfo.packageName,
-                    info.activityInfo.name);
-            if (entries.contains(componentName.flattenToString())) {
-                return componentName;
-            }
-        }
-        return null;
     }
 }

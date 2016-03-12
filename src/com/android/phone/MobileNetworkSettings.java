@@ -852,6 +852,10 @@ public class MobileNetworkSettings extends PreferenceActivity
             root.removePreference(mLteDataServicePref);
             root.removePreference(mButtonEnabledNetworks);
         }
+
+        boolean COLPEnabled = Settings.Global.getInt(getContentResolver(),
+                    Settings.Global.CONNECTED_LINE_IDENTIFICATION, 1) != 0;
+        mButtonCOLP.setChecked(COLPEnabled);
     }
 
     @Override
@@ -997,7 +1001,7 @@ public class MobileNetworkSettings extends PreferenceActivity
         } else if (preference == mButtonCOLP) {
             Settings.Global.putInt(getContentResolver(),
                     Settings.Global.CONNECTED_LINE_IDENTIFICATION,
-                    mButtonCOLP.isChecked() ? 1 : 0);
+                    mButtonCOLP.isChecked() ? 0 : 1);
         }
 
         // always let the preference setting proceed.

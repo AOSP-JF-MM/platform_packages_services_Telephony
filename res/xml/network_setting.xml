@@ -53,7 +53,6 @@
     <SwitchPreference
         android:key="connected_line_identification_key"
         android:title="@string/connected_line_identification_title"
-        android:summary="@string/connected_line_identification_summary"
-        android:defaultValue="true" />
+        android:summary="@string/connected_line_identification_summary" />
 
 </PreferenceScreen>

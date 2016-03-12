@@ -1480,8 +1480,4 @@
     <string name="exportAllcontatsFailed"> Failed to export all contacts to SIM !!!</string>
     <string name="exportAllcontatsNoContacts"> No Contacts found to export to SIM !!!</string>
     <string name="cursorError"> Cursor is not having proper data !!! </string>
-
-    <!-- presentation indicator of outgoing calls -->
-    <string name="connected_line_identification_title">Connected line identification</string>
-    <string name="connected_line_identification_summary">Disable this option if the numbers of the recipients don\'t show up in the call history</string>
 </resources>
